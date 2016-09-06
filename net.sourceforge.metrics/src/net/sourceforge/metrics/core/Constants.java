@@ -63,6 +63,8 @@ public interface Constants {
 	public final static String NUM_FIELDS = "NOF";
 	/** "NOC" */
 	public final static String NUM_TYPES = "NOC";
+	/** "NOCL - Number of classes" */
+	public final static String NUM_CLASSES = "NOCL";
 	/** "NOP" */
 	public final static String NUM_PACKAGES = "NOP";
 	/** "NOI" */

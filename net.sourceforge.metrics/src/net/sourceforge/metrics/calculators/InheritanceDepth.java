@@ -21,16 +21,21 @@
  */
 package net.sourceforge.metrics.calculators;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaModelException;
+
 import net.sourceforge.metrics.core.Constants;
 import net.sourceforge.metrics.core.Metric;
 import net.sourceforge.metrics.core.sources.AbstractMetricSource;
 import net.sourceforge.metrics.core.sources.TypeMetrics;
 
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-
 /**
- * Calculates Depth of Inheritance Tree, Number of Children and sets superclasses to either 0 or 1 (if the source has subclasses)
+ * Calculates Depth of Inheritance Tree, Number of Children and sets
+ * superclasses to either 0 or 1 (if the source has subclasses)
  * 
  * @author Frank Sauer
  */
@@ -56,8 +61,26 @@ public class InheritanceDepth extends Calculator implements Constants {
 		ITypeHierarchy hierarchy = tm.getHierarchy();
 		IType[] supers = hierarchy.getAllSuperclasses(iType);
 		IType[] subs = hierarchy.getSubtypes(iType); // BUG #933209
+
+		List<IType> declaredTypes = new ArrayList<>();
+		try {
+			for (IType type : subs) {
+
+				if (type.isClass() && !type.isAnonymous()) {
+					declaredTypes.add(type);
+				}
+
+			}
+			if (iType.isClass()) {
+				source.setValue(new Metric(SUBCLASSES, declaredTypes.size()));
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		
 		source.setValue(new Metric(INHERITANCE_DEPTH, supers.length));
-		source.setValue(new Metric(SUBCLASSES, subs.length));
+		// this is subclasses and not children
+		// source.setValue(new Metric(SUBCLASSES, subs.length));
 	}
 
 }

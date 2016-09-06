@@ -297,11 +297,20 @@
       </metric>
       <metric
             allowDisable="false"
-            name="Number of Classes"
+            name="Number of Types"
             propagateAvg="false"
             newAvgMaxAt="packageFragmentRoot"
             propagateMax="false"
             id="NOC"
+            level="compilationUnit">
+      </metric>
+       <metric
+            allowDisable="false"
+            name="Number of Classes"
+            propagateAvg="false"
+            newAvgMaxAt="packageFragmentRoot"
+            propagateMax="false"
+            id="NOCL"
             level="compilationUnit">
       </metric>
       <metric
