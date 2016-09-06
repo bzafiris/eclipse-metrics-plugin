@@ -36,6 +36,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -83,12 +84,14 @@ public class CompilationUnitMetrics extends AbstractMetricSource {
 		}
 		List<?> types = astNode.types();
 		int interfaces = 0;
+		int classes = 0;
 		for (Iterator<?> i = types.iterator(); i.hasNext();) {
 			if (metricsInterruptus()) {
 				return;
 			}
 			AbstractTypeDeclaration abstractType = (AbstractTypeDeclaration) i.next();
 			boolean isInterface = false;
+			boolean isClass = false;
 			if (abstractType instanceof TypeDeclaration) {
 				TypeDeclaration lastType = (TypeDeclaration) abstractType;
 				if (lastType.isInterface()) {
@@ -96,6 +99,15 @@ public class CompilationUnitMetrics extends AbstractMetricSource {
 				}
 			}
 			IType type = unit.getType(abstractType.getName().getIdentifier());
+			
+			try {
+				if (type.isClass() && !type.isAnonymous()){
+					isClass = true;
+				}
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+			
 			Map<String, AbstractTypeDeclaration> data = new HashMap<String, AbstractTypeDeclaration>();
 			data.put("type", abstractType);
 			TypeMetrics tm = (TypeMetrics) Dispatcher.calculateAbstractMetricSource(type, this, data);
@@ -105,8 +117,15 @@ public class CompilationUnitMetrics extends AbstractMetricSource {
 			if (isInterface) {
 				interfaces++;
 			}
+			
+			Metric subNumOfClass = tm.getValue(NUM_CLASSES);
+			classes += subNumOfClass == null ? 0 : subNumOfClass.intValue();
+			if (isClass) {
+				classes++;
+			}
 		}
 		setValue(new Metric(NUM_INTERFACES, interfaces));
+		setValue(new Metric(NUM_CLASSES, classes));
 	}
 
 	/**

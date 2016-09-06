@@ -103,6 +103,7 @@ public class TypeMetrics extends AbstractMetricSource {
 		ASTNode[] subTypes = findSubTypes(astNode);
 		if (subTypes != null) {
 			int interfaces = 0;
+			int classes = 0;
 			for (ASTNode node : subTypes) {
 				if (a_TypeMetrics.metricsInterruptus()) {
 					return;
@@ -114,16 +115,26 @@ public class TypeMetrics extends AbstractMetricSource {
 					data.put("type", node);
 					TypeMetrics tm = (TypeMetrics) Dispatcher.calculateAbstractMetricSource(type, parentMetric, data);
 					parentMetric.addChild(tm);
+					// add here number of classes
 					Metric subNumOfInterface = tm.getValue(NUM_INTERFACES);
 					interfaces += subNumOfInterface == null ? 0 : subNumOfInterface.intValue();
 					if (type.isInterface()) {
 						interfaces++;
 					}
+					
+					Metric subNumOfClass = tm.getValue(NUM_CLASSES);
+					classes += subNumOfClass == null ? 0 : subNumOfClass.intValue();
+					if (type.isClass() && !type.isAnonymous()) {
+						classes++;
+					}
+					
 				} catch (JavaModelException e) {
 					Log.logError("Could not get IJavaElement hierarchy for " + node, e);
 				}
 			}
+			// TODO: add here number of classes 
 			a_TypeMetrics.setValue(new Metric(NUM_INTERFACES,interfaces));
+			a_TypeMetrics.setValue(new Metric(NUM_CLASSES, classes));
 		}
 	}
 
